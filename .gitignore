@@ -1,7 +1,6 @@
 .vscode/
 *.lnk
 .git/
-.github/
 
 # python
 __pycache__/
@@ -20,3 +19,7 @@ __pycache__/
 /voicevox-download-windows-x64.exe
 /model
 /open_jtalk_dic_utf_8*
+
+.wav
+.wav.txt
+.wav.old.txt

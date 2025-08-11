@@ -1,0 +1,79 @@
+name: build
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  pyinstaller:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Build
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            pyinstaller --onefile --name wavloop_inspect _main.py
+            echo "dist/wavloop_inspect.exe" >> artifacts.txt
+          else
+            pyinstaller --onefile --windowed --argv-emulation \
+              --icon icon.icns --osx-bundle-identifier site.dodoneko.wavloop \
+              --name WavLoopInspector _main.py
+            echo "dist/WavLoopInspector.app" >> artifacts.txt
+          fi
+
+      - name: Zip artifact
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            7z a wavloop_win.zip dist/wavloop_inspect.exe
+            echo "wavloop_win.zip" > upload.txt
+          else
+            ditto -c -k --sequesterRsrc --keepParent dist/WavLoopInspector.app wavloop_mac.zip
+            echo "wavloop_mac.zip" > upload.txt
+          fi
+
+      - name: Zip artifact
+        id: zip
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            7z a wavloop_win.zip dist/wavloop_inspect.exe
+            echo "file=wavloop_win.zip" >> "$GITHUB_OUTPUT"     # ← 出力を定義
+          else
+            ditto -c -k --sequesterRsrc --keepParent dist/WavLoopInspector.app wavloop_mac.zip
+            echo "file=wavloop_mac.zip" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-build
+          path: ${{ steps.zip.outputs.file }}
+
+  release:
+    needs: pyinstaller
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
