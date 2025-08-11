@@ -20,6 +20,6 @@ __pycache__/
 /model
 /open_jtalk_dic_utf_8*
 
-.wav
-.wav.txt
-.wav.old.txt
+*.wav
+*.wav.txt
+*.wav.old.txt

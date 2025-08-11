@@ -27,12 +27,12 @@ jobs:
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            pyinstaller --onefile --name wavloop_inspect _main.py
-            echo "dist/wavloop_inspect.exe" >> artifacts.txt
+            pyinstaller --onefile --name wavloop_inspect --icon "icon.ico" _main.py
+            echo "dist/WavLoopInspector.exe" >> artifacts.txt
           else
             pyinstaller --onefile --windowed --argv-emulation \
               --icon icon.icns --osx-bundle-identifier site.dodoneko.wavloop \
-              --name WavLoopInspector _main.py
+              --name WavLoopInspector --icon "icon.icns" _main.py
             echo "dist/WavLoopInspector.app" >> artifacts.txt
           fi
 
