@@ -1,0 +1,22 @@
+.vscode/
+*.lnk
+.git/
+.github/
+
+# python
+__pycache__/
+/venv
+
+## pyinstaller
+*.spec
+/build
+/dist
+
+## voicevox_core
+/onnxruntime*
+/README.txt
+/VERSION
+/voicevox_core.*
+/voicevox-download-windows-x64.exe
+/model
+/open_jtalk_dic_utf_8*
