@@ -62,6 +62,12 @@ if is_mac:
                 # UTI: WAV（+保険でpublic.audio）
                 "LSItemContentTypes": ["com.microsoft.waveform-audio", "public.audio"],
                 "CFBundleTypeExtensions": ["wav", "wave"],
+            },
+            {
+                "CFBundleTypeName": "Folder",
+                "CFBundleTypeRole": "Viewer",
+                "LSHandlerRank": "Default",
+                "LSItemContentTypes": ["public.folder"],
             }],
         },
     )

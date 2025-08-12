@@ -12,11 +12,6 @@ rm -rf build "dist/${APP_NAME}.app" 2>/dev/null || true
 
 # D&Dをargvに通す --argv-emulation はPyInstallerの正式機能
 # appにWAVをドロップ→パスがsys.argvに入る
-venv/bin/pyinstaller --onefile --windowed --clean \
-  --argv-emulation \
-  --osx-bundle-identifier site.dodoneko.wavloop \
-  --name "${APP_NAME}" \
-  --icon "icon.icns" \
-  "${MAIN}"
+venv/bin/pyinstaller WavLoopInspector.spec --clean
 
 echo "成功: dist/${APP_NAME}.app"
