@@ -1,4 +1,4 @@
-# WAV Looppoint Inspector v1.3.0
+# WAV Looppoint Inspector
 
 wavファイルに刻まれたループポイントをテキストファイルにし、oggファイルを生成します。
 
