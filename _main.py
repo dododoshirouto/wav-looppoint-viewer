@@ -105,10 +105,42 @@ def write_txt(path: Path, info: dict):
     outpath.write_text(txt, encoding="utf-8")
     return outpath
 
-def convert_to_ogg(wav_path: Path, info: dict, quality: float = 5.0, outdir: Path | None = None):
+import os, shutil
+
+COMMON_FFMPEG_PATHS = [
+    "/opt/homebrew/bin/ffmpeg",   # Apple Silicon Homebrew
+    "/usr/local/bin/ffmpeg",      # Intel Homebrew
+    "/opt/local/bin/ffmpeg",      # MacPorts
+]
+
+def find_ffmpeg() -> str | None:
+    # Finder起動の.appはPATHが短いので、自前で拡張
+    extra = ["/opt/homebrew/bin", "/usr/local/bin", "/opt/local/bin"]
+    cur = os.environ.get("PATH", "")
+    parts = cur.split(":") if cur else []
+    for p in extra:
+        if p not in parts:
+            parts.append(p)
+    os.environ["PATH"] = ":".join(parts)
+
+    # まず which
     ff = shutil.which("ffmpeg")
+    if ff:
+        log(f"ffmpeg found via PATH: {ff}")
+        return ff
+
+    # 次に絶対パスの候補を総当たり
+    for p in COMMON_FFMPEG_PATHS:
+        if os.path.exists(p) and os.access(p, os.X_OK):
+            log(f"ffmpeg found via fallback: {p}")
+            return p
+    log("ffmpeg not found in PATH or common locations")
+    return None
+
+def convert_to_ogg(wav_path: Path, info: dict, quality: float = 5.0, outdir: Path | None = None):
+    ff = find_ffmpeg()
     if not ff:
-        log("[warn] ffmpeg が見つからないので OGG 変換をスキップします")
+        log("[warn] ffmpeg not found; skip ogg")
         return None
     outdir = outdir or wav_path.parent
     out = outdir / (wav_path.stem + ".ogg")
