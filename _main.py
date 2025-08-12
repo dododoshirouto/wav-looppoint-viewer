@@ -4,6 +4,16 @@
 import sys, struct, subprocess, shutil
 from pathlib import Path
 
+# ログ
+import traceback, datetime
+from pathlib import Path
+LOG_DIR = Path.home()/ "Library/Logs/WavLoopInspector"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+def log(msg):
+    print(msg)
+    with (LOG_DIR/"run.log").open("a", encoding="utf-8") as fp:
+        fp.write(f"[{datetime.datetime.now().isoformat()}] {msg}\n")
+
 def find_wavs(paths):
     wavs = []
     for p in paths:
@@ -98,7 +108,7 @@ def write_txt(path: Path, info: dict):
 def convert_to_ogg(wav_path: Path, info: dict, quality: float = 5.0, outdir: Path | None = None):
     ff = shutil.which("ffmpeg")
     if not ff:
-        print("[warn] ffmpeg が見つからないので OGG 変換をスキップします")
+        log("[warn] ffmpeg が見つからないので OGG 変換をスキップします")
         return None
     outdir = outdir or wav_path.parent
     out = outdir / (wav_path.stem + ".ogg")
@@ -124,6 +134,8 @@ def convert_to_ogg(wav_path: Path, info: dict, quality: float = 5.0, outdir: Pat
 
 def main():
     # 使い方：_main [--to-ogg] [--q 4.0] [--out outdir] <files_or_dirs...>
+    log(f"argv={sys.argv!r}")
+
     args = sys.argv[1:]
     to_ogg = True
     q = 5.0
@@ -148,20 +160,21 @@ def main():
 
     wavs = find_wavs(targets)
     if not wavs:
-        print("*.wav が見つからんかったよ")
+        log("*.wav が見つからんかったよ")
         sys.exit(1)
 
     for w in wavs:
         try:
             info = read_wav_info(w)
             txt = write_txt(w, info)
-            print(f"[ok] {w.name} -> {txt.name}")
+            log(f"[ok] {w.name} -> {txt.name}")
+            log(f"txt OK: {txt}")
             if to_ogg:
                 ogg = convert_to_ogg(w, info, quality=q, outdir=outdir)
                 if ogg:
-                    print(f"[ok] 変換: {ogg.name}")
+                    log(f"[ok] 変換: {ogg.name}")
         except Exception as e:
-            print(f"[err] {w}: {e}")
+            log(f"[err] {w}: {e}")
 
 if __name__ == "__main__":
     main()
