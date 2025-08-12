@@ -16,6 +16,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Git LFS checkout
+        run: git lfs checkout
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -25,7 +31,7 @@ jobs:
       - name: Install PyInstaller
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
+          pip install pyinstaller pillow
 
       - name: Build from spec
         shell: bash
