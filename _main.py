@@ -125,7 +125,7 @@ def convert_to_ogg(wav_path: Path, info: dict, quality: float = 5.0, outdir: Pat
 def main():
     # 使い方：_main [--to-ogg] [--q 4.0] [--out outdir] <files_or_dirs...>
     args = sys.argv[1:]
-    to_ogg = False
+    to_ogg = True
     q = 5.0
     outdir = None
 
